@@ -343,15 +343,16 @@ class RecommendationEngine: ObservableObject {
             case .cavity:
                 recommendations.append(
                     Recommendation(
-                        title: "Fluoride Products",
-                        description: "Fluoride helps strengthen teeth and prevent cavities.",
+                        title: "Cavity Prevention Products",
+                        description: "Multiple options available for cavity prevention based on your needs.",
                         priority: .important,
                         category: .products,
                         actionItems: [
-                            "Use fluoride toothpaste",
+                            "Consider xylitol-based products (natural alternative to fluoride)",
+                            "Use fluoride toothpaste for maximum protection",
+                            "Try hydroxyapatite toothpaste (remineralizing)",
                             "Consider fluoride mouthwash",
-                            "Ask about fluoride treatments",
-                            "Use fluoride dental floss"
+                            "Ask about professional fluoride treatments"
                         ]
                     )
                 )
@@ -365,9 +366,11 @@ class RecommendationEngine: ObservableObject {
                         category: .products,
                         actionItems: [
                             "Use soft-bristled toothbrush",
-                            "Try antimicrobial mouthwash",
-                            "Consider gum care toothpaste",
-                            "Use interdental brushes"
+                            "Try xylitol mouthwash (reduces harmful bacteria)",
+                            "Consider antimicrobial mouthwash",
+                            "Use gum care toothpaste with xylitol",
+                            "Try interdental brushes",
+                            "Consider herbal mouthwashes (aloe vera, tea tree oil)"
                         ]
                     )
                 )
@@ -376,14 +379,16 @@ class RecommendationEngine: ObservableObject {
                 recommendations.append(
                     Recommendation(
                         title: "Whitening Products",
-                        description: "Professional whitening products can restore your smile.",
+                        description: "Multiple whitening options available, including natural alternatives.",
                         priority: .important,
                         category: .products,
                         actionItems: [
                             "Consider professional whitening",
-                            "Use whitening toothpaste",
+                            "Try natural whitening toothpaste (baking soda, activated charcoal)",
+                            "Use xylitol-based whitening products",
                             "Try whitening strips",
-                            "Consider whitening mouthwash"
+                            "Consider whitening mouthwash",
+                            "Try oil pulling with coconut oil"
                         ]
                     )
                 )
@@ -396,9 +401,11 @@ class RecommendationEngine: ObservableObject {
                         priority: .important,
                         category: .products,
                         actionItems: [
-                            "Use plaque control toothpaste",
+                            "Use plaque control toothpaste with xylitol",
                             "Try electric toothbrush",
                             "Use plaque disclosing tablets",
+                            "Consider xylitol-based mouthwash",
+                            "Try natural plaque control (oil pulling)",
                             "Consider plaque control mouthwash"
                         ]
                     )
@@ -490,5 +497,168 @@ class RecommendationEngine: ObservableObject {
         }
         
         return recommendations
+    }
+    
+    // MARK: - Alternative Product Recommendations
+    func getAlternativeProductRecommendations(for conditions: [DentalCondition], userPreferences: UserPreferences? = nil) -> [Recommendation] {
+        var recommendations: [Recommendation] = []
+        
+        // Check if user prefers natural products
+        let prefersNatural = userPreferences?.prefersNaturalProducts ?? false
+        
+        for condition in conditions {
+            switch condition {
+            case .cavity:
+                if prefersNatural {
+                    recommendations.append(
+                        Recommendation(
+                            title: "Natural Cavity Prevention",
+                            description: "Natural alternatives to fluoride for cavity prevention.",
+                            priority: .important,
+                            category: .products,
+                            actionItems: [
+                                "Use xylitol toothpaste (reduces cavity-causing bacteria)",
+                                "Try hydroxyapatite toothpaste (remineralizes teeth)",
+                                "Consider xylitol gum (stimulates saliva production)",
+                                "Use xylitol mouthwash",
+                                "Try oil pulling with coconut oil"
+                            ]
+                        )
+                    )
+                } else {
+                    recommendations.append(
+                        Recommendation(
+                            title: "Comprehensive Cavity Prevention",
+                            description: "Multiple approaches for maximum cavity protection.",
+                            priority: .important,
+                            category: .products,
+                            actionItems: [
+                                "Use fluoride toothpaste for proven protection",
+                                "Add xylitol products for additional benefits",
+                                "Consider hydroxyapatite for remineralization",
+                                "Use xylitol gum between meals",
+                                "Try xylitol mouthwash"
+                            ]
+                        )
+                    )
+                }
+                
+            case .gingivitis:
+                recommendations.append(
+                    Recommendation(
+                        title: "Natural Gum Care",
+                        description: "Natural alternatives for gum health.",
+                        priority: .important,
+                        category: .products,
+                        actionItems: [
+                            "Use xylitol mouthwash (reduces harmful bacteria)",
+                            "Try herbal mouthwashes (aloe vera, tea tree oil)",
+                            "Consider xylitol toothpaste",
+                            "Use soft-bristled toothbrush",
+                            "Try oil pulling with coconut oil"
+                        ]
+                    )
+                )
+                
+            case .discoloration:
+                recommendations.append(
+                    Recommendation(
+                        title: "Natural Whitening Options",
+                        description: "Natural alternatives for teeth whitening.",
+                        priority: .important,
+                        category: .products,
+                        actionItems: [
+                            "Try baking soda toothpaste (gentle whitening)",
+                            "Use activated charcoal toothpaste",
+                            "Consider xylitol-based whitening products",
+                            "Try oil pulling with coconut oil",
+                            "Use xylitol gum (reduces staining)"
+                        ]
+                    )
+                )
+                
+            case .plaque:
+                recommendations.append(
+                    Recommendation(
+                        title: "Natural Plaque Control",
+                        description: "Natural methods for plaque control.",
+                        priority: .important,
+                        category: .products,
+                        actionItems: [
+                            "Use xylitol toothpaste (reduces plaque formation)",
+                            "Try oil pulling with coconut oil",
+                            "Use xylitol mouthwash",
+                            "Consider xylitol gum",
+                            "Try herbal mouthwashes"
+                        ]
+                    )
+                )
+                
+            default:
+                break
+            }
+        }
+        
+        return recommendations
+    }
+    
+    // MARK: - Product Comparison
+    func getProductComparison() -> [ProductComparison] {
+        return [
+            ProductComparison(
+                name: "Xylitol",
+                benefits: [
+                    "Reduces cavity-causing bacteria",
+                    "Stimulates saliva production",
+                    "Natural sweetener",
+                    "Safe for children",
+                    "No fluoride concerns"
+                ],
+                drawbacks: [
+                    "Less proven than fluoride",
+                    "May cause digestive issues in large amounts",
+                    "More expensive than fluoride",
+                    "Limited availability"
+                ],
+                bestFor: ["Cavity prevention", "Gum health", "Natural alternatives"],
+                effectiveness: 0.8
+            ),
+            ProductComparison(
+                name: "Fluoride",
+                benefits: [
+                    "Proven cavity prevention",
+                    "Strengthens tooth enamel",
+                    "Widely available",
+                    "Cost-effective",
+                    "Extensive research"
+                ],
+                drawbacks: [
+                    "Potential toxicity concerns",
+                    "Not suitable for young children",
+                    "Environmental concerns",
+                    "May cause fluorosis"
+                ],
+                bestFor: ["Maximum cavity protection", "Enamel strengthening"],
+                effectiveness: 0.95
+            ),
+            ProductComparison(
+                name: "Hydroxyapatite",
+                benefits: [
+                    "Natural tooth mineral",
+                    "Remineralizes teeth",
+                    "No toxicity concerns",
+                    "Biocompatible",
+                    "Gentle on teeth"
+                ],
+                drawbacks: [
+                    "Newer technology",
+                    "Limited research",
+                    "More expensive",
+                    "Less proven than fluoride"
+                ],
+                bestFor: ["Remineralization", "Sensitive teeth", "Natural alternatives"],
+                effectiveness: 0.7
+            )
+        ]
     }
 }

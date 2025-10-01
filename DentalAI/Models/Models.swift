@@ -246,6 +246,10 @@ struct UserPreferences {
     var reminderFrequency: ReminderFrequency = .weekly
     var preferredLanguage: String = "en"
     var shareDataWithDentist: Bool = false
+    var prefersNaturalProducts: Bool = false
+    var prefersFluoride: Bool = true
+    var prefersXylitol: Bool = false
+    var prefersHydroxyapatite: Bool = false
 }
 
 enum ReminderFrequency: String, CaseIterable {
@@ -277,5 +281,34 @@ extension Array where Element == Int {
             if self[i] >= self[i-1] { return false }
         }
         return true
+    }
+}
+
+// MARK: - Product Comparison
+struct ProductComparison: Identifiable {
+    let id = UUID()
+    let name: String
+    let benefits: [String]
+    let drawbacks: [String]
+    let bestFor: [String]
+    let effectiveness: Double // 0.0 to 1.0
+    
+    var effectivenessPercentage: Int {
+        Int(effectiveness * 100)
+    }
+    
+    var effectivenessRating: String {
+        switch effectiveness {
+        case 0.9...1.0:
+            return "Excellent"
+        case 0.8..<0.9:
+            return "Very Good"
+        case 0.7..<0.8:
+            return "Good"
+        case 0.6..<0.7:
+            return "Fair"
+        default:
+            return "Limited"
+        }
     }
 }

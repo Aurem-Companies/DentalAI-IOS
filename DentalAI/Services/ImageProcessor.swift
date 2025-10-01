@@ -2,31 +2,60 @@ import UIKit
 import Vision
 import CoreImage
 
-class ImageProcessor: ObservableObject {
+// MARK: - Image Processing Protocol
+protocol ImageProcessing {
+    func enhanceImage(_ image: UIImage) async throws -> UIImage
+    func assessImageQuality(_ image: UIImage) -> ImageQuality
+    func analyzeToothColor(_ image: UIImage) async throws -> ToothColorAnalysis
+    func detectEdges(_ image: UIImage) async throws -> UIImage?
+    func cropToTeethRegion(_ image: UIImage) async throws -> UIImage?
+}
+
+class ImageProcessor: ObservableObject, ImageProcessing {
     
     // MARK: - Image Enhancement
-    func enhanceImage(_ image: UIImage) -> UIImage? {
-        guard let ciImage = CIImage(image: image) else { return nil }
-        
-        let context = CIContext()
-        
-        // Apply filters for better dental analysis
-        let enhancedImage = ciImage
-            .applyingFilter("CIColorControls", parameters: [
-                kCIInputBrightnessKey: 0.1,
-                kCIInputContrastKey: 1.2,
-                kCIInputSaturationKey: 1.1
-            ])
-            .applyingFilter("CIUnsharpMask", parameters: [
-                kCIInputRadiusKey: 2.0,
-                kCIInputIntensityKey: 0.5
-            ])
-        
-        guard let cgImage = context.createCGImage(enhancedImage, from: enhancedImage.extent) else {
-            return nil
+    func enhanceImage(_ image: UIImage) async throws -> UIImage {
+        guard let ciImage = CIImage(image: image) else {
+            throw AnalysisError.invalidImage
         }
         
-        return UIImage(cgImage: cgImage)
+        return try await withCheckedThrowingContinuation { continuation in
+            // Use background queue for image processing to avoid blocking UI
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    // Create context with optimized settings for performance
+                    let context = CIContext(options: [
+                        .workingColorSpace: CGColorSpace(name: CGColorSpace.sRGB),
+                        .outputColorSpace: CGColorSpace(name: CGColorSpace.sRGB),
+                        .cacheIntermediates: true,
+                        .useSoftwareRenderer: false
+                    ])
+                    
+                    // Apply filters for better dental analysis with optimized parameters
+                    let enhancedImage = ciImage
+                        .applyingFilter("CIColorControls", parameters: [
+                            kCIInputBrightnessKey: 0.1,
+                            kCIInputContrastKey: 1.2,
+                            kCIInputSaturationKey: 1.1
+                        ])
+                        .applyingFilter("CIUnsharpMask", parameters: [
+                            kCIInputRadiusKey: 2.0,
+                            kCIInputIntensityKey: 0.5
+                        ])
+                    
+                    // Use Metal for hardware acceleration if available
+                    guard let cgImage = context.createCGImage(enhancedImage, from: enhancedImage.extent) else {
+                        continuation.resume(throwing: AnalysisError.mlFailure("Failed to create enhanced image"))
+                        return
+                    }
+                    
+                    let result = UIImage(cgImage: cgImage)
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: AnalysisError.mlFailure("Image enhancement failed: \(error.localizedDescription)"))
+                }
+            }
+        }
     }
     
     // MARK: - Image Quality Assessment
@@ -75,9 +104,9 @@ class ImageProcessor: ObservableObject {
     }
     
     // MARK: - Color Analysis
-    func analyzeToothColor(_ image: UIImage) -> ToothColorAnalysis {
+    func analyzeToothColor(_ image: UIImage) async throws -> ToothColorAnalysis {
         guard let cgImage = image.cgImage else {
-            return ToothColorAnalysis(dominantColor: .unknown, healthiness: 0.0)
+            throw AnalysisError.invalidImage
         }
         
         let width = cgImage.width
@@ -131,32 +160,53 @@ class ImageProcessor: ObservableObject {
         let avgG = totalG / Double(pixelCount)
         let avgB = totalB / Double(pixelCount)
         
-        let dominantColor = determineToothColor(red: avgR, green: avgG, blue: avgB)
-        let healthiness = calculateHealthiness(red: avgR, green: avgG, blue: avgB)
-        
-        return ToothColorAnalysis(dominantColor: dominantColor, healthiness: healthiness)
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    let dominantColor = self.determineToothColor(red: avgR, green: avgG, blue: avgB)
+                    let healthiness = self.calculateHealthiness(red: avgR, green: avgG, blue: avgB)
+                    
+                    let result = ToothColorAnalysis(dominantColor: dominantColor, healthiness: healthiness)
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: AnalysisError.mlFailure("Color analysis failed: \(error.localizedDescription)"))
+                }
+            }
+        }
     }
     
     // MARK: - Edge Detection
-    func detectEdges(_ image: UIImage) -> UIImage? {
-        guard let ciImage = CIImage(image: image) else { return nil }
-        
-        let context = CIContext()
-        
-        let edgeImage = ciImage
-            .applyingFilter("CIEdges", parameters: [
-                kCIInputIntensityKey: 1.0
-            ])
-        
-        guard let cgImage = context.createCGImage(edgeImage, from: edgeImage.extent) else {
-            return nil
+    func detectEdges(_ image: UIImage) async throws -> UIImage? {
+        guard let ciImage = CIImage(image: image) else {
+            throw AnalysisError.invalidImage
         }
         
-        return UIImage(cgImage: cgImage)
+        return try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    let context = CIContext()
+                    
+                    let edgeImage = ciImage
+                        .applyingFilter("CIEdges", parameters: [
+                            kCIInputIntensityKey: 1.0
+                        ])
+                    
+                    guard let cgImage = context.createCGImage(edgeImage, from: edgeImage.extent) else {
+                        continuation.resume(throwing: AnalysisError.mlFailure("Failed to create edge image"))
+                        return
+                    }
+                    
+                    let result = UIImage(cgImage: cgImage)
+                    continuation.resume(returning: result)
+                } catch {
+                    continuation.resume(throwing: AnalysisError.mlFailure("Edge detection failed: \(error.localizedDescription)"))
+                }
+            }
+        }
     }
     
     // MARK: - Crop to Teeth Region
-    func cropToTeethRegion(_ image: UIImage) -> UIImage? {
+    func cropToTeethRegion(_ image: UIImage) async throws -> UIImage? {
         // This is a simplified implementation
         // In a real app, you'd use more sophisticated tooth detection
         let cropRect = CGRect(
@@ -167,7 +217,7 @@ class ImageProcessor: ObservableObject {
         )
         
         guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
-            return nil
+            throw AnalysisError.mlFailure("Failed to crop image to teeth region")
         }
         
         return UIImage(cgImage: cgImage)

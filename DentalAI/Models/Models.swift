@@ -1,6 +1,75 @@
 import Foundation
 import UIKit
 
+// MARK: - Error Types
+enum AnalysisError: Error, LocalizedError {
+    case invalidImage
+    case lowQualityImage(String)
+    case mlFailure(String)
+    case processingTimeout
+    case insufficientData
+    case networkError(String)
+    case storageError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidImage:
+            return "The provided image is invalid or corrupted"
+        case .lowQualityImage(let reason):
+            return "Image quality is too low for analysis: \(reason)"
+        case .mlFailure(let reason):
+            return "AI analysis failed: \(reason)"
+        case .processingTimeout:
+            return "Image processing timed out"
+        case .insufficientData:
+            return "Insufficient data for analysis"
+        case .networkError(let reason):
+            return "Network error: \(reason)"
+        case .storageError(let reason):
+            return "Storage error: \(reason)"
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .invalidImage:
+            return "Please try taking a new photo"
+        case .lowQualityImage:
+            return "Ensure good lighting and hold the camera steady"
+        case .mlFailure:
+            return "Please try again or contact support"
+        case .processingTimeout:
+            return "Please try with a smaller image"
+        case .insufficientData:
+            return "Please provide more information"
+        case .networkError:
+            return "Check your internet connection"
+        case .storageError:
+            return "Free up storage space and try again"
+        }
+    }
+}
+
+enum ValidationError: Error, LocalizedError {
+    case invalidInput(String)
+    case missingRequiredField(String)
+    case outOfRange(String)
+    case formatError(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidInput(let field):
+            return "Invalid input for \(field)"
+        case .missingRequiredField(let field):
+            return "Required field \(field) is missing"
+        case .outOfRange(let field):
+            return "Value for \(field) is out of acceptable range"
+        case .formatError(let field):
+            return "Invalid format for \(field)"
+        }
+    }
+}
+
 // MARK: - Dental Conditions
 enum DentalCondition: String, CaseIterable, Identifiable {
     case cavity = "Cavity"

@@ -372,11 +372,18 @@ struct ContentView: View {
             let result = await analysisEngine.analyzeDentalImage(image)
             
             await MainActor.run {
-                analysisResult = result
                 isAnalyzing = false
                 
-                // Add to user history
-                userProfile.dentalHistory.append(result)
+                switch result {
+                case .success(let analysisResult):
+                    self.analysisResult = analysisResult
+                    // Add to user history
+                    userProfile.dentalHistory.append(analysisResult)
+                case .failure(let error):
+                    // Handle error - show alert or error message
+                    print("Analysis failed: \(error.localizedDescription)")
+                    // You could show an alert here
+                }
             }
         }
     }

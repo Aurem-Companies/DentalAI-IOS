@@ -391,6 +391,109 @@ extension ValidationService {
         )
     }
     
+    // MARK: - Poor Lighting Detection
+    func detectPoorLightingConditions(_ image: UIImage) -> PoorLightingAnalysis {
+        var conditions: [PoorLightingCondition] = []
+        var severity: PoorLightingSeverity = .good
+        
+        // Check brightness
+        if let brightness = calculateBrightness(image) {
+            if brightness < 0.1 {
+                conditions.append(.tooDark)
+                severity = .poor
+            } else if brightness > 0.9 {
+                conditions.append(.tooBright)
+                severity = .poor
+            } else if brightness < 0.2 || brightness > 0.8 {
+                conditions.append(.suboptimal)
+                severity = .fair
+            }
+        }
+        
+        // Check contrast
+        if let contrast = calculateContrast(image) {
+            if contrast < 0.1 {
+                conditions.append(.lowContrast)
+                severity = .poor
+            } else if contrast < 0.2 {
+                conditions.append(.suboptimal)
+                severity = .fair
+            }
+        }
+        
+        // Check for specific lighting issues
+        if detectHarshShadows(image) {
+            conditions.append(.harshShadows)
+            severity = .fair
+        }
+        
+        if detectOverexposure(image) {
+            conditions.append(.overexposed)
+            severity = .poor
+        }
+        
+        if detectUnderexposure(image) {
+            conditions.append(.underexposed)
+            severity = .poor
+        }
+        
+        return PoorLightingAnalysis(
+            conditions: conditions,
+            severity: severity,
+            recommendations: generateLightingRecommendations(conditions: conditions)
+        )
+    }
+    
+    private func detectHarshShadows(_ image: UIImage) -> Bool {
+        // Simplified shadow detection
+        // In a real implementation, this would use more sophisticated computer vision
+        if let brightness = calculateBrightness(image) {
+            return brightness < 0.3 || brightness > 0.7
+        }
+        return false
+    }
+    
+    private func detectOverexposure(_ image: UIImage) -> Bool {
+        // Simplified overexposure detection
+        if let brightness = calculateBrightness(image) {
+            return brightness > 0.9
+        }
+        return false
+    }
+    
+    private func detectUnderexposure(_ image: UIImage) -> Bool {
+        // Simplified underexposure detection
+        if let brightness = calculateBrightness(image) {
+            return brightness < 0.1
+        }
+        return false
+    }
+    
+    private func generateLightingRecommendations(conditions: [PoorLightingCondition]) -> [String] {
+        var recommendations: [String] = []
+        
+        for condition in conditions {
+            switch condition {
+            case .tooDark:
+                recommendations.append("Move to a brighter area or turn on more lights")
+            case .tooBright:
+                recommendations.append("Move to a shaded area or reduce lighting")
+            case .lowContrast:
+                recommendations.append("Ensure good contrast between teeth and background")
+            case .harshShadows:
+                recommendations.append("Use diffused lighting to reduce shadows")
+            case .overexposed:
+                recommendations.append("Avoid direct light or flash")
+            case .underexposed:
+                recommendations.append("Increase lighting or move closer to light source")
+            case .suboptimal:
+                recommendations.append("Adjust lighting for better image quality")
+            }
+        }
+        
+        return recommendations
+    }
+    
     // MARK: - Batch Validation
     func validateAnalysisHistory(_ history: [DentalAnalysisResult]) -> [ValidationResult] {
         return history.map { validateAnalysisResult($0) }
@@ -454,4 +557,76 @@ extension ValidationService {
 struct StorageInfo {
     let usedSpace: Int64
     let totalSpace: Int64
+}
+
+// MARK: - Poor Lighting Analysis Types
+struct PoorLightingAnalysis {
+    let conditions: [PoorLightingCondition]
+    let severity: PoorLightingSeverity
+    let recommendations: [String]
+    
+    var hasIssues: Bool {
+        !conditions.isEmpty
+    }
+    
+    var isPoor: Bool {
+        severity == .poor
+    }
+}
+
+enum PoorLightingCondition: String, CaseIterable {
+    case tooDark = "Too Dark"
+    case tooBright = "Too Bright"
+    case lowContrast = "Low Contrast"
+    case harshShadows = "Harsh Shadows"
+    case overexposed = "Overexposed"
+    case underexposed = "Underexposed"
+    case suboptimal = "Suboptimal"
+    
+    var description: String {
+        switch self {
+        case .tooDark:
+            return "Image is too dark for accurate analysis"
+        case .tooBright:
+            return "Image is too bright, may cause overexposure"
+        case .lowContrast:
+            return "Low contrast between teeth and background"
+        case .harshShadows:
+            return "Harsh shadows affecting image quality"
+        case .overexposed:
+            return "Image is overexposed, details may be lost"
+        case .underexposed:
+            return "Image is underexposed, details may be lost"
+        case .suboptimal:
+            return "Lighting conditions are suboptimal"
+        }
+    }
+}
+
+enum PoorLightingSeverity: String, CaseIterable {
+    case good = "Good"
+    case fair = "Fair"
+    case poor = "Poor"
+    
+    var color: String {
+        switch self {
+        case .good:
+            return "green"
+        case .fair:
+            return "yellow"
+        case .poor:
+            return "red"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .good:
+            return "checkmark.circle.fill"
+        case .fair:
+            return "exclamationmark.triangle.fill"
+        case .poor:
+            return "xmark.circle.fill"
+        }
+    }
 }

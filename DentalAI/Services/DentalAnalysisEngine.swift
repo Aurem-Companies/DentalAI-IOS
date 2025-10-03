@@ -640,20 +640,4 @@ struct TextureAnalysis {
     let contrast: Double
 }
 
-// MARK: - Extensions for ImageProcessor
-extension ImageProcessor {
-    func calculateBrightness(_ image: UIImage) -> Double {
-        // This would be implemented in the ImageProcessor class
-        return 0.5 // Placeholder
-    }
-    
-    func calculateContrast(_ image: UIImage) -> Double {
-        // This would be implemented in the ImageProcessor class
-        return 0.3 // Placeholder
-    }
-    
-    func calculateBlur(_ image: UIImage) -> Double {
-        // This would be implemented in the ImageProcessor class
-        return 0.2 // Placeholder
-    }
-}
+//

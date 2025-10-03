@@ -224,7 +224,8 @@ class ImageProcessor: ObservableObject, ImageProcessing {
     }
     
     // MARK: - Private Helper Methods
-    private func calculateBrightness(_ image: UIImage) -> Double {
+    // Exposed internally for use by other services (e.g., DentalAnalysisEngine)
+    internal func calculateBrightness(_ image: UIImage) -> Double {
         guard let cgImage = image.cgImage else { return 0.0 }
         
         let width = cgImage.width
@@ -264,7 +265,7 @@ class ImageProcessor: ObservableObject, ImageProcessing {
         return pixelCount > 0 ? totalBrightness / Double(pixelCount) : 0.0
     }
     
-    private func calculateContrast(_ image: UIImage) -> Double {
+    internal func calculateContrast(_ image: UIImage) -> Double {
         guard let cgImage = image.cgImage else { return 0.0 }
         
         let width = cgImage.width
@@ -306,7 +307,7 @@ class ImageProcessor: ObservableObject, ImageProcessing {
         return sqrt(variance)
     }
     
-    private func calculateBlur(_ image: UIImage) -> Double {
+    internal func calculateBlur(_ image: UIImage) -> Double {
         // Simplified blur detection using edge detection
         guard let edgeImage = detectEdges(image) else { return 0.0 }
         

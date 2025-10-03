@@ -17,6 +17,9 @@
 		A1234567890ABCDEF015 /* RecommendationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF016 /* RecommendationEngine.swift */; };
 		A1234567890ABCDEF017 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF018 /* Models.swift */; };
 		A1234567890ABCDEF019 /* ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF020 /* ImageProcessor.swift */; };
+		A1234567890ABCDEF040 /* CoreMLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF041 /* CoreMLService.swift */; };
+		A1234567890ABCDEF042 /* PerformanceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF043 /* PerformanceMonitor.swift */; };
+		A1234567890ABCDEF044 /* UserFeedbackService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1234567890ABCDEF045 /* UserFeedbackService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +34,9 @@
 		A1234567890ABCDEF016 /* RecommendationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationEngine.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF018 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		A1234567890ABCDEF020 /* ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF041 /* CoreMLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLService.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF043 /* PerformanceMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceMonitor.swift; sourceTree = "<group>"; };
+		A1234567890ABCDEF045 /* UserFeedbackService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFeedbackService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +103,9 @@
 				A1234567890ABCDEF014 /* DentalAnalysisEngine.swift */,
 				A1234567890ABCDEF016 /* RecommendationEngine.swift */,
 				A1234567890ABCDEF020 /* ImageProcessor.swift */,
+				A1234567890ABCDEF041 /* CoreMLService.swift */,
+				A1234567890ABCDEF043 /* PerformanceMonitor.swift */,
+				A1234567890ABCDEF045 /* UserFeedbackService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -187,6 +196,9 @@
 				A1234567890ABCDEF015 /* RecommendationEngine.swift in Sources */,
 				A1234567890ABCDEF017 /* Models.swift in Sources */,
 				A1234567890ABCDEF019 /* ImageProcessor.swift in Sources */,
+				A1234567890ABCDEF040 /* CoreMLService.swift in Sources */,
+				A1234567890ABCDEF042 /* PerformanceMonitor.swift in Sources */,
+				A1234567890ABCDEF044 /* UserFeedbackService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
